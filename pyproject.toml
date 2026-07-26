@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rocky-engineering-framework"
+version = "0.1.0"
+description = "A repository-native engineering framework"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Rocky maintainers" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["mypy>=1.10", "pytest>=8.0", "ruff>=0.5"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rocky"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]
