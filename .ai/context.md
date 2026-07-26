@@ -2,7 +2,7 @@
 id: AI-CONTEXT-001
 title: Rocky agent context
 status: accepted
-version: 1.0.0
+version: 1.1.0
 owners: Rocky maintainers
 last_updated: 2026-07-26
 ---
@@ -17,6 +17,11 @@ is operational context, not a replacement for the [charter](../docs/charters/RKY
 [requirements](../docs/prd/PRD-001.md), accepted [decisions](../docs/adr/README.md), or an EPKG SPEC.
 If instructions conflict, follow the authority order in the
 [handbook](../docs/handbook/REF-001.md) and surface the conflict.
+
+The [documentation index](../docs/README.md) locates the current architecture and asset catalog.
+For architecture work, treat the capability status and dependency direction in
+[ARCH-001](../docs/architecture/ARCH-001.md) as the baseline. Catalog entries describe knowledge
+assets, not proof that a runtime capability exists.
 
 ## Working contract
 
