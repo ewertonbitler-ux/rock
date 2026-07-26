@@ -16,3 +16,12 @@ redefining these terms.
 | **Test Plan (TESTS)** | The verification strategy and commands that demonstrate acceptance criteria. |
 | **Repository as Knowledge** | The practice of storing canonical, versioned engineering context beside the code it governs. |
 | **Agent** | A human-directed automation role with explicit responsibilities and boundaries. |
+| **Knowledge Asset** | A repository-managed unit of engineering knowledge with a stable identity, lifecycle metadata, accountable ownership, relationships, and reviewable content. |
+| **Artifact** | A conceptual future domain entity representing a structured unit of engineering knowledge; it is an architectural hypothesis and not an implemented runtime type. |
+| **Bounded Context** | An explicit semantic boundary within which a model and its vocabulary are consistent. |
+| **Engineering Asset Catalog (CAT)** | The inventory of canonical engineering knowledge assets, their locations, lifecycle states, owners, and relationships. |
+| **System Architecture (ARCH)** | A technology-neutral baseline describing system boundaries, capability status, contexts, logical layers, and dependency rules. |
+| **Request for Comments (RFC)** | A time-bounded proposal used to gather review before a consequential approach is adopted. |
+| **Pattern** | A reusable, context-specific engineering solution with forces, consequences, and known limits. |
+| **Lesson Learned** | A concise record of observed experience and an actionable improvement. |
+| **Postmortem** | A blameless record of an incident's impact, timeline, contributing conditions, response, and follow-up actions. |
