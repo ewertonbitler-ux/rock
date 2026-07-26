@@ -21,8 +21,8 @@ human or an automated agent can reconstruct why a change exists.
 
 ## Bootstrap and validation
 
-Rocky requires Python 3.11 or later. The package deliberately contains metadata only; product
-domain classes are outside this foundation issue.
+Rocky requires Python 3.11 or later. The package includes the bounded, persistence-free Knowledge
+Asset core domain specified by EPKG-0003; runtime Artifact and infrastructure remain excluded.
 
 ```shell
 python -m pip install -e '.[dev]'

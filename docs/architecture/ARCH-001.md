@@ -16,8 +16,9 @@ chartered by [RKY-000](../charters/RKY-000.md). Accepted [ADRs](../adr/README.md
 for decisions; this document connects them into a system view and must not override them. The
 [glossary](../glossary.md) owns terminology.
 
-The current system is a documentation framework, a metadata-only Python bootstrap, local quality
-commands, and CI. The domain model below is an analysis model. In particular, **Artifact is an
+The current system is a documentation framework, a Python Knowledge Asset core domain, local
+quality commands, and CI. The repository documentation model below remains distinct from the
+runtime aggregate. In particular, **Artifact is an
 architectural hypothesis, not an implemented class, service, persistence model, or API**.
 
 ## Capability status baseline
@@ -28,6 +29,7 @@ architectural hypothesis, not an implemented class, service, persistence model, 
 | Artifact templates and delivery checklists | Implemented | The [template index](../../templates/README.md). |
 | Lint, static type, test, and local-link quality gates | Implemented | Root `Makefile`, tests, Python configuration, and CI workflow. |
 | Formal architecture baseline and engineering asset catalog | Implemented as documentation | This baseline and [CAT-001](../catalog/CAT-001.md); no runtime model is implied. |
+| Knowledge Asset core domain and bounded application operations | Implemented | Persistence-free [`rocky.knowledge_assets`](../../src/rocky/knowledge_assets/) package and focused tests. |
 | Automated metadata, relationship, and schema validation | Partially implemented | Local links are checked; lifecycle metadata and semantic relationships require human review. |
 | Runtime Artifact and Workspace management | Planned | Requires an accepted PRD, decisions, and a separate EPKG. No runtime code exists. |
 | Persistence, graph traversal, external integrations, and AI providers | Conceptual | No technology, interface, vendor, or delivery commitment has been selected. |
@@ -74,8 +76,11 @@ repository. Its minimum conceptual attributes are:
 | Relationships | Governs, governed-by, supersedes, packages, or references links | Repository-relative Markdown links. |
 | Evidence | Checks or review records supporting claims | TESTS and REVIEW assets where applicable. |
 
-The repository and review process enforce this model socially and through link validation; there
-is no runtime aggregate, schema registry, persistence mapping, or universal metadata parser.
+The repository and review process enforce this documentation model socially and through link
+validation. Separately, `rocky.knowledge_assets` implements the neutral identity, kind, status,
+version, owner, logical content-reference, relationship, lifecycle, and bounded use-case rules
+specified by EPKG-0003. It does not parse these files or provide a schema registry, persistence
+mapping, or universal metadata parser.
 
 ### Conceptual relationships
 
@@ -112,12 +117,12 @@ requires a process, network boundary, database, or independent release.
 
 From inward to outward, the logical layers are:
 
-1. **Policy and domain knowledge:** chartered concepts, requirements, and accepted decisions;
-   technology-independent and canonical.
-2. **Use-case guidance:** EPKG specifications, prompts, test plans, reviews, templates, and
-   checklists that apply policy to bounded work.
-3. **Repository interfaces:** Markdown navigation, package metadata, and future explicit ports that
-   expose knowledge without selecting infrastructure.
+1. **Policy and domain knowledge:** chartered concepts, requirements, accepted decisions, and the
+   persistence-free Knowledge Asset domain; technology-independent and canonical.
+2. **Use-case guidance:** EPKG specifications, prompts, test plans, reviews, templates, checklists,
+   and the bounded Knowledge Asset application operations that apply policy to work.
+3. **Repository interfaces:** Markdown navigation, package metadata, and the abstract Knowledge
+   Asset repository port, which exposes required storage capabilities without selecting infrastructure.
 4. **Tooling and infrastructure:** current Make targets, Python development tools, link checker,
    Git, and CI; future storage, integration, and provider adapters would also belong here.
 
