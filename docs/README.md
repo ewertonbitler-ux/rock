@@ -20,6 +20,7 @@ canonical in the [glossary](glossary.md), while lifecycle and authority rules ar
 
 - [EPKG-0001 foundation package](../.specs/epkg/EPKG-0001/README.md)
 - [EPKG-0002 architecture baseline package](../.specs/epkg/EPKG-0002/README.md)
+- [EPKG-0003 Knowledge Asset Core Domain package](../.specs/epkg/EPKG-0003/README.md)
 - [Artifact templates](../templates/README.md)
 - [AI context](../.ai/context.md) and [agent catalog](../.ai/agents.md)
 

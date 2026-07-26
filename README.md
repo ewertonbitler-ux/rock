@@ -16,6 +16,7 @@ human or an automated agent can reconstruct why a change exists.
 - [Glossary](docs/glossary.md) — canonical terminology.
 - [EPKG-0001](.specs/epkg/EPKG-0001/README.md) — the package defining this foundation.
 - [EPKG-0002](.specs/epkg/EPKG-0002/README.md) — the architecture baseline package.
+- [EPKG-0003](.specs/epkg/EPKG-0003/README.md) — the proposed Knowledge Asset Core Domain package.
 - [AI context](.ai/context.md) — bounded, provider-neutral context for coding agents.
 
 ## Bootstrap and validation
