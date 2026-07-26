@@ -115,6 +115,14 @@ for future domain discovery, not a claim that all files already share a runtime 
 The first four boundaries are semantic documentation contexts, not deployed services. No context
 requires a process, network boundary, database, or independent release.
 
+## Domain evolution
+
+Knowledge remains a foundational concern, and Knowledge Asset remains an independent domain.
+Engineering Domains evolve through their own boundaries. A new Engineering Domain requires an
+accepted PRD and a dedicated EPKG; an ADR is required only for consequential, cross-cutting, or
+difficult-to-reverse decisions. Proposed artifacts do not authorize implementation. Infrastructure
+and provider concerns remain outside domain policy.
+
 ## Logical layers and dependency rule
 
 From inward to outward, the logical layers are:
