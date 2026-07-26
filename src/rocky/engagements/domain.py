@@ -54,8 +54,26 @@ class Actor:
     display_name: str
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "identifier", _text(self.identifier, maximum=200, error=InvalidActor, label="actor identifier"))
-        object.__setattr__(self, "display_name", _text(self.display_name, maximum=200, error=InvalidActor, label="actor display name"))
+        object.__setattr__(
+            self,
+            "identifier",
+            _text(
+                self.identifier,
+                maximum=200,
+                error=InvalidActor,
+                label="actor identifier",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "display_name",
+            _text(
+                self.display_name,
+                maximum=200,
+                error=InvalidActor,
+                label="actor display name",
+            ),
+        )
 
     @property
     def key(self) -> str:
@@ -68,7 +86,16 @@ class Participant:
     role: str
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "role", _text(self.role, maximum=100, error=InvalidActor, label="participant role"))
+        object.__setattr__(
+            self,
+            "role",
+            _text(
+                self.role,
+                maximum=100,
+                error=InvalidActor,
+                label="participant role",
+            ),
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,8 +104,26 @@ class Goal:
     description: str
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "title", _text(self.title, maximum=200, error=InvalidGoal, label="goal title"))
-        object.__setattr__(self, "description", _text(self.description, maximum=4000, error=InvalidGoal, label="goal description"))
+        object.__setattr__(
+            self,
+            "title",
+            _text(
+                self.title,
+                maximum=200,
+                error=InvalidGoal,
+                label="goal title",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "description",
+            _text(
+                self.description,
+                maximum=4000,
+                error=InvalidGoal,
+                label="goal description",
+            ),
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,8 +136,26 @@ class Decision:
     def __post_init__(self) -> None:
         if self.occurred_at.tzinfo is None:
             raise InvalidDecision("decision timestamp must be timezone-aware")
-        object.__setattr__(self, "rationale", _text(self.rationale, maximum=4000, error=InvalidDecision, label="decision rationale"))
-        object.__setattr__(self, "outcome", _text(self.outcome, maximum=4000, error=InvalidDecision, label="decision outcome"))
+        object.__setattr__(
+            self,
+            "rationale",
+            _text(
+                self.rationale,
+                maximum=4000,
+                error=InvalidDecision,
+                label="decision rationale",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "outcome",
+            _text(
+                self.outcome,
+                maximum=4000,
+                error=InvalidDecision,
+                label="decision outcome",
+            ),
+        )
 
 
 class EngagementStatus(StrEnum):
@@ -116,8 +179,18 @@ class Milestone:
     completed_at: datetime | None = None
 
     def __post_init__(self) -> None:
-        self.identifier = _text(self.identifier, maximum=100, error=InvalidMilestone, label="milestone identifier")
-        self.name = _text(self.name, maximum=200, error=InvalidMilestone, label="milestone name")
+        self.identifier = _text(
+            self.identifier,
+            maximum=100,
+            error=InvalidMilestone,
+            label="milestone identifier",
+        )
+        self.name = _text(
+            self.name,
+            maximum=200,
+            error=InvalidMilestone,
+            label="milestone name",
+        )
 
     def complete(self, at: datetime) -> None:
         if self.status is MilestoneStatus.COMPLETED:
@@ -141,11 +214,24 @@ class Engagement:
     _milestones: dict[str, Milestone] = field(default_factory=dict, repr=False)
 
     @classmethod
-    def create(cls, engagement_id: EngagementId, owner: Actor, goal: Goal, *, at: datetime | None = None) -> Engagement:
+    def create(
+        cls,
+        engagement_id: EngagementId,
+        owner: Actor,
+        goal: Goal,
+        *,
+        at: datetime | None = None,
+    ) -> Engagement:
         moment = at or datetime.now(UTC)
         if moment.tzinfo is None:
             raise InvalidLifecycleTransition("creation timestamp must be timezone-aware")
-        return cls(engagement_id=engagement_id, owner=owner, goal=goal, created_at=moment, updated_at=moment)
+        return cls(
+            engagement_id=engagement_id,
+            owner=owner,
+            goal=goal,
+            created_at=moment,
+            updated_at=moment,
+        )
 
     @property
     def participants(self) -> tuple[Participant, ...]:
@@ -166,7 +252,12 @@ class Engagement:
         self.owner = owner
         self._touch(at)
 
-    def add_participant(self, participant: Participant, *, at: datetime | None = None) -> None:
+    def add_participant(
+        self,
+        participant: Participant,
+        *,
+        at: datetime | None = None,
+    ) -> None:
         self._ensure_open()
         if participant.actor.key == self.owner.key:
             raise OwnerCannotBeParticipant("owner cannot also be a participant")
@@ -175,7 +266,12 @@ class Engagement:
         self._participants[participant.actor.key] = participant
         self._touch(at)
 
-    def remove_participant(self, actor_identifier: str, *, at: datetime | None = None) -> None:
+    def remove_participant(
+        self,
+        actor_identifier: str,
+        *,
+        at: datetime | None = None,
+    ) -> None:
         self._ensure_open()
         key = actor_identifier.casefold()
         if key not in self._participants:
@@ -183,12 +279,22 @@ class Engagement:
         del self._participants[key]
         self._touch(at)
 
-    def record_decision(self, decision: Decision, *, at: datetime | None = None) -> None:
+    def record_decision(
+        self,
+        decision: Decision,
+        *,
+        at: datetime | None = None,
+    ) -> None:
         self._ensure_open()
         self._decisions.append(decision)
         self._touch(at)
 
-    def register_milestone(self, milestone: Milestone, *, at: datetime | None = None) -> None:
+    def register_milestone(
+        self,
+        milestone: Milestone,
+        *,
+        at: datetime | None = None,
+    ) -> None:
         self._ensure_open()
         key = milestone.identifier.casefold()
         if key in self._milestones:
@@ -196,7 +302,12 @@ class Engagement:
         self._milestones[key] = milestone
         self._touch(at)
 
-    def complete_milestone(self, identifier: str, *, at: datetime | None = None) -> None:
+    def complete_milestone(
+        self,
+        identifier: str,
+        *,
+        at: datetime | None = None,
+    ) -> None:
         self._ensure_open()
         milestone = self._milestones.get(identifier.casefold())
         if milestone is None:
@@ -218,11 +329,26 @@ class Engagement:
         self._transition(EngagementStatus.COMPLETED, {EngagementStatus.ACTIVE}, at)
 
     def cancel(self, *, at: datetime | None = None) -> None:
-        self._transition(EngagementStatus.CANCELLED, {EngagementStatus.DRAFT, EngagementStatus.ACTIVE, EngagementStatus.SUSPENDED}, at)
+        self._transition(
+            EngagementStatus.CANCELLED,
+            {
+                EngagementStatus.DRAFT,
+                EngagementStatus.ACTIVE,
+                EngagementStatus.SUSPENDED,
+            },
+            at,
+        )
 
-    def _transition(self, target: EngagementStatus, allowed: set[EngagementStatus], at: datetime | None) -> None:
+    def _transition(
+        self,
+        target: EngagementStatus,
+        allowed: set[EngagementStatus],
+        at: datetime | None,
+    ) -> None:
         if self.status not in allowed:
-            raise InvalidLifecycleTransition(f"cannot transition from {self.status} to {target}")
+            raise InvalidLifecycleTransition(
+                f"cannot transition from {self.status} to {target}"
+            )
         self.status = target
         self._touch(at)
 
