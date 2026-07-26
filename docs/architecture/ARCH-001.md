@@ -2,7 +2,7 @@
 id: ARCH-001
 title: Rocky System Architecture
 status: proposed
-version: 0.1.0
+version: 0.2.0
 owners: Rocky maintainers
 last_updated: 2026-07-26
 ---
@@ -31,6 +31,7 @@ architectural hypothesis, not an implemented class, service, persistence model, 
 | Formal architecture baseline and engineering asset catalog | Implemented as documentation | This baseline and [CAT-001](../catalog/CAT-001.md); no runtime model is implied. |
 | Knowledge Asset core domain and bounded application operations | Implemented | Persistence-free [`rocky.knowledge_assets`](../../src/rocky/knowledge_assets/) package and focused tests. |
 | Automated metadata, relationship, and schema validation | Partially implemented | Local links are checked; lifecycle metadata and semantic relationships require human review. |
+| Engagement Context | Proposed for specification | [PRD-002](../prd/PRD-002.md) and proposed [ADR-004](../adr/ADR-004.md); no Engagement code exists. |
 | Runtime Artifact and Workspace management | Planned | Requires an accepted PRD, decisions, and a separate EPKG. No runtime code exists. |
 | Persistence, graph traversal, external integrations, and AI providers | Conceptual | No technology, interface, vendor, or delivery commitment has been selected. |
 
@@ -107,6 +108,7 @@ for future domain discovery, not a claim that all files already share a runtime 
 | Architecture Governance | System constraints, decisions, patterns, and proposals | Implemented as repository knowledge | Conforms to Product Intent; constrains Delivery Evidence. |
 | Delivery Evidence | Bounded specifications, execution guidance, test plans, and reviews | Implemented as repository knowledge | Consumes Product Intent and Architecture Governance by reference. |
 | Knowledge Catalog | Discovery, classification, ownership, lifecycle, and relationships | Implemented as documentation; automation partial | References all contexts without owning their canonical content. |
+| Engagement | Governed engineering engagements, ownership, participation, and traceability | Proposed for specification | Must conform to repository authority and publish bounded contracts without infrastructure dependencies. |
 | Workspace Management | Organization and manipulation of runtime workspaces and artifacts | Planned | Must depend on published knowledge contracts if later approved. |
 | Integration and Automation | External systems, persistence adapters, and AI-provider adapters | Conceptual | Must remain outside core policy and depend inward through explicit ports. |
 
@@ -134,7 +136,7 @@ allowed; the precedence rules in the [handbook](../handbook/REF-001.md) resolve 
 
 ## Constraints and evolution
 
-- New runtime domains require governing product requirements and a separate EPKG.
+- New Engineering Domains require an accepted PRD and a separate EPKG; a further ADR is required only for consequential or cross-cutting architecture decisions. Engagement remains proposed for specification under [PRD-002](../prd/PRD-002.md) and proposed [ADR-004](../adr/ADR-004.md).
 - A database, graph technology, serialization schema, service topology, or provider must be decided
   only when concrete requirements justify it; this baseline selects none.
 - Accepted ADRs are changed only through their documented successor process.

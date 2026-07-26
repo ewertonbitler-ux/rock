@@ -17,6 +17,8 @@ redefining these terms.
 | **Repository as Knowledge** | The practice of storing canonical, versioned engineering context beside the code it governs. |
 | **Agent** | A human-directed automation role with explicit responsibilities and boundaries. |
 | **Knowledge Asset** | A repository-managed unit of engineering knowledge with a stable identity, lifecycle metadata, accountable ownership, relationships, and reviewable content. |
+| **Engineering Domain** | A bounded, technology-independent model of governed engineering behavior and business concepts. Its code publishes contracts without owning repository governance or infrastructure; [ADR-004](adr/ADR-004.md) proposes the architectural decision. |
+| **Engagement** | The engineering business concept proposed for specification by [PRD-002](prd/PRD-002.md); its detailed domain model is governed later by EPKG-0004. |
 | **Artifact** | A conceptual future domain entity representing a structured unit of engineering knowledge; it is an architectural hypothesis and not an implemented runtime type. |
 | **Bounded Context** | An explicit semantic boundary within which a model and its vocabulary are consistent. |
 | **Engineering Asset Catalog (CAT)** | The inventory of canonical engineering knowledge assets, their locations, lifecycle states, owners, and relationships. |
