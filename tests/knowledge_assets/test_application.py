@@ -50,13 +50,17 @@ class Repo:
 
 
 def make(number: str = "001", status: S = S.DRAFT, version: str = "1.0.0") -> KnowledgeAsset:
-    return KnowledgeAsset(
+    item = KnowledgeAsset(
         KnowledgeAssetId(f"ADR-{number}"),
         KnowledgeAssetKind.ADR,
         SemanticVersion(version),
         {Owner("Owner")},
-        status=status,
     )
+    if status is not S.DRAFT:
+        item.transition(S.PROPOSED)
+    if status is S.ACCEPTED:
+        item.transition(S.ACCEPTED)
+    return item
 
 
 def test_create_retrieve_and_duplicate() -> None:

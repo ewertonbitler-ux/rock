@@ -43,7 +43,7 @@ _SEMVER = re.compile(
 _CONTENT = re.compile(r"([a-z][a-z0-9+.-]*):(.+)\Z", re.ASCII)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class KnowledgeAssetKind:
     name: str
     prefix: str
@@ -82,37 +82,44 @@ class KnowledgeAssetKind:
     CHECK: ClassVar[KnowledgeAssetKind]
     TMPL: ClassVar[KnowledgeAssetKind]
 
-    def __post_init__(self) -> None:
-        if (
-            not self.name
-            or self.name != self.name.strip()
-            or any(unicodedata.category(c) == "Cc" for c in self.name)
-            or not _PREFIX.fullmatch(self.prefix)
-        ):
-            raise InvalidKnowledgeAssetKind(
-                "invalid canonical kind name or prefix", (self.name, self.prefix)
-            )
-        expected = self._CANONICAL.get(self.name)
-        if expected is not None and expected != self.prefix:
-            raise InvalidKnowledgeAssetKind("canonical name has a different prefix", self.name)
-        owner = next(
-            (name for name, prefix in self._CANONICAL.items() if prefix == self.prefix), None
+    def __init__(self, name: str, prefix: str) -> None:
+        raise InvalidKnowledgeAssetKind(
+            "additional kinds must be created with KnowledgeAssetKind.extension()",
+            (name, prefix),
         )
-        if owner is not None and owner != self.name:
-            raise InvalidKnowledgeAssetKind("canonical prefix is already claimed", self.prefix)
+
+    @classmethod
+    def _create(cls, name: str, prefix: str) -> KnowledgeAssetKind:
+        if (
+            not name
+            or name != name.strip()
+            or any(unicodedata.category(c) == "Cc" for c in name)
+            or not _PREFIX.fullmatch(prefix)
+        ):
+            raise InvalidKnowledgeAssetKind("invalid canonical kind name or prefix", (name, prefix))
+        expected = cls._CANONICAL.get(name)
+        if expected is not None and expected != prefix:
+            raise InvalidKnowledgeAssetKind("canonical name has a different prefix", name)
+        owner = next((item for item, value in cls._CANONICAL.items() if value == prefix), None)
+        if owner is not None and owner != name:
+            raise InvalidKnowledgeAssetKind("canonical prefix is already claimed", prefix)
+        kind = object.__new__(cls)
+        object.__setattr__(kind, "name", name)
+        object.__setattr__(kind, "prefix", prefix)
+        return kind
 
     @classmethod
     def extension(
         cls, name: str, prefix: str, claimed: Iterable[KnowledgeAssetKind] = ()
     ) -> KnowledgeAssetKind:
-        kind = cls(name, prefix)
+        kind = cls._create(name, prefix)
         if any(existing.prefix == prefix and existing != kind for existing in claimed):
             raise InvalidKnowledgeAssetKind("extension prefix is already claimed", prefix)
         return kind
 
 
 for _name, _prefix in KnowledgeAssetKind._CANONICAL.items():
-    setattr(KnowledgeAssetKind, _prefix, KnowledgeAssetKind(_name, _prefix))
+    setattr(KnowledgeAssetKind, _prefix, KnowledgeAssetKind._create(_name, _prefix))
 
 
 @dataclass(frozen=True, slots=True)
@@ -160,7 +167,7 @@ class SemanticVersion:
         if left[:3] != right[:3]:
             return left[:3] < right[:3]
         if left[3] is None:
-            return right[3] is not None and False
+            return False
         if right[3] is None:
             return True
         for a, b in zip(left[3], right[3]):
@@ -249,8 +256,25 @@ class RelationshipType(StrEnum):
 
     @property
     def inverse(self) -> RelationshipType:
-        pairs = list(type(self))
-        return pairs[pairs.index(self) ^ 1]
+        return _RELATIONSHIP_INVERSES[self]
+
+
+_RELATIONSHIP_INVERSES = MappingProxyType(
+    {
+        RelationshipType.GOVERNS: RelationshipType.GOVERNED_BY,
+        RelationshipType.GOVERNED_BY: RelationshipType.GOVERNS,
+        RelationshipType.SUPERSEDES: RelationshipType.SUPERSEDED_BY,
+        RelationshipType.SUPERSEDED_BY: RelationshipType.SUPERSEDES,
+        RelationshipType.PACKAGES: RelationshipType.PACKAGED_BY,
+        RelationshipType.PACKAGED_BY: RelationshipType.PACKAGES,
+        RelationshipType.REFERENCES: RelationshipType.REFERENCED_BY,
+        RelationshipType.REFERENCED_BY: RelationshipType.REFERENCES,
+        RelationshipType.IMPLEMENTS: RelationshipType.IMPLEMENTED_BY,
+        RelationshipType.IMPLEMENTED_BY: RelationshipType.IMPLEMENTS,
+        RelationshipType.VALIDATES: RelationshipType.VALIDATED_BY,
+        RelationshipType.VALIDATED_BY: RelationshipType.VALIDATES,
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -281,24 +305,32 @@ class SeriesPolicy(Protocol):
 
 _TRANSITIONS = MappingProxyType(
     {
-        KnowledgeAssetStatus.DRAFT: {KnowledgeAssetStatus.PROPOSED, KnowledgeAssetStatus.ARCHIVED},
-        KnowledgeAssetStatus.PROPOSED: {
-            KnowledgeAssetStatus.ACCEPTED,
-            KnowledgeAssetStatus.REJECTED,
-            KnowledgeAssetStatus.ARCHIVED,
-        },
-        KnowledgeAssetStatus.ACCEPTED: {
-            KnowledgeAssetStatus.SUPERSEDED,
-            KnowledgeAssetStatus.DEPRECATED,
-            KnowledgeAssetStatus.ARCHIVED,
-        },
-        KnowledgeAssetStatus.REJECTED: {KnowledgeAssetStatus.ARCHIVED},
-        KnowledgeAssetStatus.SUPERSEDED: {
-            KnowledgeAssetStatus.DEPRECATED,
-            KnowledgeAssetStatus.ARCHIVED,
-        },
-        KnowledgeAssetStatus.DEPRECATED: {KnowledgeAssetStatus.ARCHIVED},
-        KnowledgeAssetStatus.ARCHIVED: set(),
+        KnowledgeAssetStatus.DRAFT: frozenset(
+            {KnowledgeAssetStatus.PROPOSED, KnowledgeAssetStatus.ARCHIVED}
+        ),
+        KnowledgeAssetStatus.PROPOSED: frozenset(
+            {
+                KnowledgeAssetStatus.ACCEPTED,
+                KnowledgeAssetStatus.REJECTED,
+                KnowledgeAssetStatus.ARCHIVED,
+            }
+        ),
+        KnowledgeAssetStatus.ACCEPTED: frozenset(
+            {
+                KnowledgeAssetStatus.SUPERSEDED,
+                KnowledgeAssetStatus.DEPRECATED,
+                KnowledgeAssetStatus.ARCHIVED,
+            }
+        ),
+        KnowledgeAssetStatus.REJECTED: frozenset({KnowledgeAssetStatus.ARCHIVED}),
+        KnowledgeAssetStatus.SUPERSEDED: frozenset(
+            {
+                KnowledgeAssetStatus.DEPRECATED,
+                KnowledgeAssetStatus.ARCHIVED,
+            }
+        ),
+        KnowledgeAssetStatus.DEPRECATED: frozenset({KnowledgeAssetStatus.ARCHIVED}),
+        KnowledgeAssetStatus.ARCHIVED: frozenset(),
     }
 )
 
@@ -311,13 +343,27 @@ class KnowledgeAsset:
         version: SemanticVersion,
         owners: set[Owner] | frozenset[Owner],
         content_reference: ContentReference | None = None,
-        status: KnowledgeAssetStatus = KnowledgeAssetStatus.DRAFT,
     ) -> None:
+        if not isinstance(id, KnowledgeAssetId):
+            raise InvalidKnowledgeAssetId("asset ID must be a KnowledgeAssetId", id)
+        if not isinstance(kind, KnowledgeAssetKind):
+            raise InvalidKnowledgeAssetKind("asset kind must be a KnowledgeAssetKind", kind)
+        if not isinstance(version, SemanticVersion):
+            raise InvalidSemanticVersion("asset version must be a SemanticVersion", version)
+        if not isinstance(owners, (set, frozenset)) or any(
+            not isinstance(owner, Owner) for owner in owners
+        ):
+            raise InvalidOwner("asset owners must be a set of Owner values", owners)
+        if content_reference is not None and not isinstance(content_reference, ContentReference):
+            raise InvalidContentReference(
+                "asset content reference must be ContentReference or None", content_reference
+            )
         if id.prefix != kind.prefix:
             raise KindIdentifierMismatch("ID prefix does not match kind", id.value)
         if not owners:
             raise LastOwnerRemoval("an asset requires at least one owner", id.value)
-        self._id, self._kind, self._version, self._status = id, kind, version, status
+        self._id, self._kind, self._version = id, kind, version
+        self._status = KnowledgeAssetStatus.DRAFT
         self._owners, self._content_reference = set(owners), content_reference
         self._relationships: set[AssetRelationship] = set()
 

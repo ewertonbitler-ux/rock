@@ -29,10 +29,17 @@ def test_ids_reject_noncanonical_values(value: str) -> None:
 
 
 def test_kinds_are_typed_open_values_without_global_registration() -> None:
-    assert KnowledgeAssetKind.ADR == KnowledgeAssetKind("ADR", "ADR")
-    assert KnowledgeAssetKind.extension("Guide", "GUIDE") == KnowledgeAssetKind("Guide", "GUIDE")
+    assert (KnowledgeAssetKind.ADR.name, KnowledgeAssetKind.ADR.prefix) == ("ADR", "ADR")
+    guide = KnowledgeAssetKind.extension("Guide", "GUIDE")
+    assert (guide.name, guide.prefix) == ("Guide", "GUIDE")
     with pytest.raises(InvalidKnowledgeAssetKind):
-        KnowledgeAssetKind.extension("Manual", "GUIDE", [KnowledgeAssetKind("Guide", "GUIDE")])
+        KnowledgeAssetKind.extension("Manual", "GUIDE", [guide])
+    with pytest.raises(InvalidKnowledgeAssetKind):
+        KnowledgeAssetKind.extension("ADR", "OTHER")
+    with pytest.raises(InvalidKnowledgeAssetKind):
+        KnowledgeAssetKind.extension("Other", "ADR")
+    with pytest.raises(InvalidKnowledgeAssetKind):
+        KnowledgeAssetKind("Guide", "GUIDE")
     with pytest.raises(InvalidKnowledgeAssetKind):
         KnowledgeAssetKind("Other", "ADR")
 

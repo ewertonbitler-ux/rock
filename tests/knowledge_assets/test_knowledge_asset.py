@@ -19,8 +19,13 @@ from rocky.knowledge_assets.errors import (
     DuplicateOwner,
     DuplicateRelationship,
     ImmutableAcceptedAsset,
+    InvalidContentReference,
+    InvalidKnowledgeAssetId,
+    InvalidKnowledgeAssetKind,
     InvalidLifecycleTransition,
+    InvalidOwner,
     InvalidRelationship,
+    InvalidSemanticVersion,
     InvalidSuccessor,
     KindIdentifierMismatch,
     LastOwnerRemoval,
@@ -32,13 +37,37 @@ from rocky.knowledge_assets.errors import (
 
 
 def asset(status: S = S.DRAFT, number: str = "001", version: str = "1.0.0") -> KnowledgeAsset:
-    return KnowledgeAsset(
+    item = KnowledgeAsset(
         KnowledgeAssetId(f"ADR-{number}"),
         KnowledgeAssetKind.ADR,
         SemanticVersion(version),
         {Owner("Rocky maintainers")},
-        status=status,
     )
+    if status is S.DRAFT:
+        return item
+    if status is S.ARCHIVED:
+        item.transition(S.ARCHIVED)
+        return item
+    item.transition(S.PROPOSED)
+    if status is S.PROPOSED:
+        return item
+    if status is S.REJECTED:
+        item.transition(S.REJECTED)
+        return item
+    item.transition(S.ACCEPTED)
+    if status is S.ACCEPTED:
+        return item
+    if status is S.SUPERSEDED:
+        successor = asset(S.ACCEPTED, "999", "2.0.0")
+        item.transition(
+            S.SUPERSEDED,
+            successor=SuccessorSummary(
+                successor.id, successor.kind, successor.status, successor.version
+            ),
+        )
+        return item
+    item.transition(S.DEPRECATED)
+    return item
 
 
 VALID = {
@@ -84,6 +113,63 @@ def test_kind_id_and_owner_construction_invariants() -> None:
         KnowledgeAsset(
             KnowledgeAssetId("ADR-001"), KnowledgeAssetKind.ADR, SemanticVersion("1.0.0"), set()
         )
+
+
+def test_constructor_creates_only_drafts_and_validates_argument_types() -> None:
+    assert asset().status is S.DRAFT
+    with pytest.raises(TypeError):
+        KnowledgeAsset(  # type: ignore[call-arg]
+            KnowledgeAssetId("ADR-001"),
+            KnowledgeAssetKind.ADR,
+            SemanticVersion("1.0.0"),
+            {Owner("Owner")},
+            status=S.ACCEPTED,
+        )
+    invalid_cases = [
+        (
+            "ADR-001",
+            KnowledgeAssetKind.ADR,
+            SemanticVersion("1.0.0"),
+            {Owner("Owner")},
+            None,
+            InvalidKnowledgeAssetId,
+        ),
+        (
+            KnowledgeAssetId("ADR-001"),
+            "ADR",
+            SemanticVersion("1.0.0"),
+            {Owner("Owner")},
+            None,
+            InvalidKnowledgeAssetKind,
+        ),
+        (
+            KnowledgeAssetId("ADR-001"),
+            KnowledgeAssetKind.ADR,
+            "1.0.0",
+            {Owner("Owner")},
+            None,
+            InvalidSemanticVersion,
+        ),
+        (
+            KnowledgeAssetId("ADR-001"),
+            KnowledgeAssetKind.ADR,
+            SemanticVersion("1.0.0"),
+            {"Owner"},
+            None,
+            InvalidOwner,
+        ),
+        (
+            KnowledgeAssetId("ADR-001"),
+            KnowledgeAssetKind.ADR,
+            SemanticVersion("1.0.0"),
+            {Owner("Owner")},
+            "key:value",
+            InvalidContentReference,
+        ),
+    ]
+    for id, kind, version, owners, reference, error in invalid_cases:
+        with pytest.raises(error):
+            KnowledgeAsset(id, kind, version, owners, reference)  # type: ignore[arg-type]
 
 
 def test_state_collections_are_read_only_snapshots() -> None:

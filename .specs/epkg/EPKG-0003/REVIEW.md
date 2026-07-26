@@ -10,10 +10,10 @@ issue: BIT-466
 preparation_issue: BIT-470
 ---
 
-# EPKG-0003 implementation review template
+# EPKG-0003 implementation review
 
-Complete this record during BIT-466. An unchecked item or blank result is not a pass, and only a
-maintainer may accept the package.
+This record contains the completed BIT-466 implementation evidence. Only a maintainer may accept
+the package.
 
 ## Traceability and scope checklist
 
@@ -49,9 +49,9 @@ Record exact output and exit code after execution; do not prefill results.
 | --- | --- | --- |
 | `make lint` | 0 | `All checks passed!` |
 | `make type-check` | 0 | `Success: no issues found in 12 source files` |
-| `make test` | 0 | `87 passed in 0.19s` |
+| `make test` | 0 | `88 passed in 0.15s` |
 | `make links` | 0 | `All relative Markdown links resolve.` |
-| `make check` | 0 | Ruff passed; mypy checked 12 source files; `87 passed in 0.17s`; all relative Markdown links resolve. |
+| `make check` | 0 | Ruff passed; mypy checked 12 source files; `88 passed in 0.14s`; all relative Markdown links resolve. |
 | `git diff --check` | 0 | No output. |
 
 ## Manual inspection
@@ -80,9 +80,11 @@ Record exact output and exit code after execution; do not prefill results.
 ### Decisions realized
 
 - Immutable dataclass value objects provide concrete-type value equality; aggregate collections
-  are returned as `frozenset` snapshots and mutations occur only through domain methods.
+  are returned as `frozenset` snapshots, the transition matrix is deeply immutable, and mutations
+  occur only through domain methods. The aggregate constructor validates its domain-value inputs
+  and creates only a draft.
 - The closed status and relationship types use `StrEnum`; kinds remain open through an explicit
-  factory with no process-global extension registry.
+  factory with no process-global extension registry, and relationship inverses use an explicit map.
 - SemVer precedence is implemented locally without a dependency; build metadata remains part of
   equality while being excluded from precedence.
 - Application functions express only the approved intentions and use a test-local repository fake.
