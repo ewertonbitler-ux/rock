@@ -8,7 +8,7 @@ canonical in the [glossary](glossary.md), while lifecycle and authority rules ar
 
 - [Product Charter RKY-000](charters/RKY-000.md)
 - [Product Definition PRD-001](prd/PRD-001.md)
-- [Engagement Context PRD-002](prd/PRD-002.md)
+- [Engagement Context PRD-002](prd/PRD-002.md) — accepted for specification; not implemented
 - [Engineering Handbook REF-001](handbook/REF-001.md)
 - [Architecture Decision index](adr/README.md)
 
